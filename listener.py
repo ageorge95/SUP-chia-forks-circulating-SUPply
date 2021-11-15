@@ -4,10 +4,15 @@ from uvicorn import run
 from variables import API_srv_port
 from backend import json_ops_class,\
     json_ops_daemon_thread
+from _base import configure_logger
+from logging import getLogger
 
 if __name__ == '__main__':
 
-    # SqlAlchemy Setup
+    configure_logger()
+    _log = getLogger()
+
+    # app Setup
     app = FastAPI()
     json_ops = json_ops_class()
     json_ops_daemon_thread().loop()
@@ -33,4 +38,9 @@ if __name__ == '__main__':
     def return_input(input: str):
         return json_ops.return_input(input=input)
 
-    run(app, host="0.0.0.0", port=API_srv_port)
+    _log.info('app setup completed')
+
+    # Infinite Loop
+    run(app,
+        host="0.0.0.0",
+        port=API_srv_port)
