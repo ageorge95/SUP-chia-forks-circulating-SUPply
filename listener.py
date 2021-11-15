@@ -6,6 +6,7 @@ from backend import DataParser,\
     json_ops_daemon_thread
 from _base import configure_logger
 from logging import getLogger
+from traceback import format_exc
 
 if __name__ == '__main__':
 
@@ -37,11 +38,19 @@ if __name__ == '__main__':
 
     @app.get("/total_supply")
     def get_total_supply():
-        return data_parser.return_latest_total_supply()
+        try:
+            return data_parser.return_latest_total_supply()
+        except:
+            _log.error('Error while returning total_supply. Will return NA instead. Reason: \n{}'.format(format_exc(chain=False)))
+            return 'NA'
 
     @app.get("/circulating_supply")
     def get_circulating_supply():
-        return data_parser.return_latest_circulating_supply()
+        try:
+            return data_parser.return_latest_circulating_supply()
+        except:
+            _log.error('Error while returning circulating_supply. Will return NA instead. Reason: \n{}'.format(format_exc(chain=False)))
+            return 'NA'
 
     # Infinite Loop
     run(app,
