@@ -33,11 +33,6 @@ if __name__ == '__main__':
             </html>
         """
 
-
-    @app.get('/return_input/{input}')
-    def return_input(input: str):
-        return json_ops.return_input(input=input)
-
     _log.info('app setup completed')
 
     # Infinite Loop
