@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from uvicorn import run
 from variables import API_srv_port
-from backend import json_ops_class,\
+from backend import DataParser,\
     json_ops_daemon_thread
 from _base import configure_logger
 from logging import getLogger
@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
     # app Setup
     app = FastAPI()
-    json_ops = json_ops_class()
+    data_parser = DataParser()
     json_ops_daemon_thread().loop()
 
     @app.get("/",
@@ -34,6 +34,14 @@ if __name__ == '__main__':
         """
 
     _log.info('app setup completed')
+
+    @app.get("/total_supply")
+    def get_total_supply():
+        return data_parser.return_latest_total_supply()
+
+    @app.get("/circulating_supply")
+    def get_circulating_supply():
+        return data_parser.return_latest_circulating_supply()
 
     # Infinite Loop
     run(app,

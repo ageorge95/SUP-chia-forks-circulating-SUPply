@@ -16,7 +16,8 @@ from chia.util.byte_types import hexstr_to_bytes
 from variables import full_node_db_path,\
     denominator,\
     backend_ops_timeout_s,\
-    backup_descriptor
+    backup_descriptor,\
+    pre_mine_addrs
 
 class json_ops_class():
 
@@ -49,6 +50,19 @@ class json_ops_class():
                 self._log.warning('Retrying dump in {}, failed because \n{}'.format(json_filepath,
                                                                        format_exc(chain=False)))
                 sleep(5)
+
+class DataParser(json_ops_class):
+    def __init__(self):
+        super(DataParser, self).__init__()
+
+    def return_latest_total_supply(self):
+        wf_contents = self.read_json(json_filepath=path.join('wd', 'wf.json'))
+        return sum(addr[1]['coin_balance'] for addr in wf_contents[-1].items())
+
+    def return_latest_circulating_supply(self):
+        wf_contents = self.read_json(json_filepath=path.join('wd', 'wf.json'))
+        return sum(addr[1]['coin_balance'] for addr in wf_contents[-1].items()) - \
+               sum(addr[1]['coin_balance'] for addr in filter(lambda x:x[0] in pre_mine_addrs, wf_contents[-1].items()))
 
 class json_ops_daemon_thread(json_ops_class):
 
@@ -99,7 +113,7 @@ class json_ops_daemon_thread(json_ops_class):
         dbcursor = conn.cursor()
         self.addresses = {}
         dbcursor.execute("SELECT * FROM coin_record")
-        rows = dbcursor.fetchmany(10)
+        rows = dbcursor.fetchall()
         total_circulating_supply = 0
 
         for row in rows:
